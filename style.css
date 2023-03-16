@@ -1,0 +1,97 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font: inherit;
+}
+
+:root {
+  --color-background: #333;
+  --color-text-untyped: #777;
+  --color-text-correct: #ddd;
+  --color-text-incorrect: #f66;
+  --color-caret: #fa0;
+}
+
+body {
+  font-family: monospace;
+  background-color: var(--color-background);
+  color: var(--color-text-correct);
+}
+
+.app {
+  width: 100%;
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+}
+
+.container {
+  max-width: 800px;
+}
+
+.exercise {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 1.5rem;
+  color: var(--color-text-untyped);
+}
+
+.exercise-input {
+  position: absolute;
+  left: 999999px;
+}
+
+.exercise-input__holder {
+  position: relative;
+  overflow: hidden;
+}
+
+.word {
+  display: inline;
+}
+
+.letter {
+  position: relative;
+}
+
+.letter::before {
+  content: "|";
+  position: absolute;
+  color: var(--color-caret);
+  visibility: hidden;
+  left: -1.5ch;
+  top: -0.1ch;
+  bottom: 0;
+  transition: left 0.1s;
+}
+
+.letter--correct {
+  color: var(--color-text-correct);
+}
+
+.letter--incorrect {
+  color: var(--color-text-incorrect);
+  text-decoration: underline;
+}
+
+@keyframes caret-anim {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.letter--current::before {
+  left: -0.5ch;
+  visibility: visible;
+
+  animation: caret-anim 0.5s infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in;
+}
