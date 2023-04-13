@@ -1,9 +1,18 @@
 import { words } from "/words.js";
 
+let chain = {};
 const exerciseHolder = document.querySelector("#exercise");
 const inputElement = document.querySelector("#exercise-input");
 const appElement = document.querySelector("#app");
 appElement.addEventListener("click", () => inputElement.focus());
+
+export function setChain(newChain) {
+  chain = newChain;
+}
+
+function randNumber(n) {
+  return Math.floor(Math.random() * n);
+}
 
 function shuffle(array) {
   const res = [...array];
@@ -66,7 +75,45 @@ function createExerciseElement(words) {
   return exerciseElement;
 }
 
-function generateExercise(errors, length) {
+function generateRandomWord() {
+  const res = [];
+  let position = -1;
+  let previousCharacter = ' ';
+  let currentCharacter = ' ';
+
+  while (true) {
+    const state = `${previousCharacter}${currentCharacter}-${position}`;
+    const transitions = chain[state];
+    const count = transitions.reduce((acc, t) => acc + t.f, 0);
+    const rand = randNumber(count);
+    let acc = 0;
+    for (const t of transitions) {
+      acc += t.f;
+      if (acc >= rand) {
+        if (t.c !== ' ') {
+          res.push(t.c);
+        }
+        previousCharacter = currentCharacter;
+        currentCharacter = t.c;
+        break;
+      }
+    }
+    if (currentCharacter === ' ') {
+      return res.join('');
+    }
+    position += 1;
+  }
+}
+
+function generateExercise(errors, length, mode = "randomized") {
+  if (mode === "randomized") {
+    const res = [];
+    for (let i = 0; i < length; i++) {
+      res.push(generateRandomWord());
+    }
+    return res;
+  }
+
   if (errors.length === 0) {
     const res = getRandomElements(words, length);
     return shuffle(res);

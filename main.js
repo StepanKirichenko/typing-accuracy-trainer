@@ -1,3 +1,11 @@
-import { createExercise } from "./exercise";
+import { setChain, createExercise } from "./exercise";
 
-createExercise();
+let chain = {};
+fetch('/chain.json')
+  .then((response) => response.json())
+  .then((json) => {
+    chain = json;
+    setChain(chain);
+    createExercise();
+  })
+
