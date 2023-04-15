@@ -21,7 +21,8 @@ function parseChain(chainString) {
 fetch('/chain.json')
   .then((response) => response.json())
   .then((json) => {
-    const chain = parseChain(json.chain);
+    console.log(json);
+    const chain = parseChain(json.chain.forwardChain);
     setChain(chain);
     createExercise();
   })
