@@ -82,10 +82,11 @@ function generateRandomWord() {
   let currentCharacter = ' ';
 
   while (true) {
-    const state = `${previousCharacter}${currentCharacter}-${position}`;
-    const transitions = chain[state];
-    const count = transitions.reduce((acc, t) => acc + t.count, 0);
-    const rand = randNumber(count);
+    const stateString = `${previousCharacter}${currentCharacter}-${position}`;
+    const state = chain.forwardChain[stateString];
+    const transitions = state.transitions;
+    const totalCount = state.totalCount;
+    const rand = randNumber(totalCount);
     let acc = 0;
     for (const t of transitions) {
       acc += t.count;
