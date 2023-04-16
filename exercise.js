@@ -81,7 +81,7 @@ function generateExercise(errors, length, mode = "randomized") {
       }
     } else {
       const errorCount = errors.length;
-      const wordsPerError = Math.max(Math.floor(length / errorCount), 1);
+      const wordsPerError = Math.max(Math.ceil(length / errorCount), 1);
       for (let i = 0; i < length; i++) {
         const error = errors[Math.floor(i / wordsPerError)];
         res.push(generateWordFromChainFromError(chain, error.text));
@@ -96,7 +96,7 @@ function generateExercise(errors, length, mode = "randomized") {
   }
 
   const errorCount = errors.length;
-  const wordsPerError = Math.max(Math.floor(length / errorCount), 1);
+  const wordsPerError = Math.max(Math.ceil(length / errorCount), 1);
 
   const res = [];
   errors.forEach((error) => {
