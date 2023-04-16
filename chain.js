@@ -94,10 +94,9 @@ function generateBackwardFromBigramAtPosition(chain, bigram, initialPosition) {
 
   while (true) {
     const bigram = `${previousCharacter}${currentCharacter}`;
-    console.log(`Positition: ${position}; bigram: ${bigram}`);
     const nextCharacter = getNextRandomCharacter(chain.backwardChain, bigram, position);
     if (nextCharacter === ' ') {
-      return res.join('');
+      return res.reverse().join('');
     }
     res.push(nextCharacter);
     currentCharacter = previousCharacter;
@@ -110,7 +109,9 @@ export function generateWordFromChain(chain) {
   return generateForwardFromBigramAtPosition(chain, '  ', -1);
 }
 
-export function generateWordFromChainFromError(chain, errorBigram, errorPosition) {
+export function generateWordFromChainFromError(chain, errorBigram) {
+  const bigramPositions = chain.bigramPositions[errorBigram];
+  const errorPosition = bigramPositions[randNumber(bigramPositions.length)];
   const before = generateBackwardFromBigramAtPosition(chain, errorBigram, errorPosition);
   const after = generateForwardFromBigramAtPosition(chain, errorBigram, errorPosition);
   return `${before}${errorBigram}${after}`;

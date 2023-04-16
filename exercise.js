@@ -72,15 +72,11 @@ function createExerciseElement(words) {
   return exerciseElement;
 }
 
-function generateRandomWord() {
-  return generateWordFromChainFromError(chain, 'ea', 4);
-}
-
 function generateExercise(errors, length, mode = "randomized") {
   if (mode === "randomized") {
     const res = [];
     for (let i = 0; i < length; i++) {
-      res.push(generateRandomWord());
+      res.push(generateWordFromChain(chain));
     }
     return res;
   }
