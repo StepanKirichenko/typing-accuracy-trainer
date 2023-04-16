@@ -1,4 +1,5 @@
 import { words } from "/words.js";
+import { generateWordFromChain, generateWordFromChainFromError} from "./chain";
 
 let chain = {};
 const exerciseHolder = document.querySelector("#exercise");
@@ -8,10 +9,6 @@ appElement.addEventListener("click", () => inputElement.focus());
 
 export function setChain(newChain) {
   chain = newChain;
-}
-
-function randNumber(n) {
-  return Math.floor(Math.random() * n);
 }
 
 function shuffle(array) {
@@ -76,34 +73,7 @@ function createExerciseElement(words) {
 }
 
 function generateRandomWord() {
-  const res = [];
-  let position = -1;
-  let previousCharacter = ' ';
-  let currentCharacter = ' ';
-
-  while (true) {
-    const stateString = `${previousCharacter}${currentCharacter}-${position}`;
-    const state = chain.forwardChain[stateString];
-    const transitions = state.transitions;
-    const totalCount = state.totalCount;
-    const rand = randNumber(totalCount);
-    let acc = 0;
-    for (const t of transitions) {
-      acc += t.count;
-      if (acc >= rand) {
-        if (t.character !== ' ') {
-          res.push(t.character);
-        }
-        previousCharacter = currentCharacter;
-        currentCharacter = t.character;
-        break;
-      }
-    }
-    if (currentCharacter === ' ') {
-      return res.join('');
-    }
-    position += 1;
-  }
+  return generateWordFromChainFromError(chain, 'ea', 4);
 }
 
 function generateExercise(errors, length, mode = "randomized") {
