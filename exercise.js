@@ -1,5 +1,5 @@
 import { words } from "/words.js";
-import { generateWordFromChain, generateWordFromChainFromError} from "./chain";
+import { generateWordFromChain, generateWordFromChainFromError } from "./chain";
 
 let chain = {};
 const exerciseHolder = document.querySelector("#exercise");
@@ -75,10 +75,19 @@ function createExerciseElement(words) {
 function generateExercise(errors, length, mode = "randomized") {
   if (mode === "randomized") {
     const res = [];
-    for (let i = 0; i < length; i++) {
-      res.push(generateWordFromChain(chain));
+    if (errors.length == 0) {
+      for (let i = 0; i < length; i++) {
+        res.push(generateWordFromChain(chain));
+      }
+    } else {
+      const errorCount = errors.length;
+      const wordsPerError = Math.max(Math.floor(length / errorCount), 1);
+      for (let i = 0; i < length; i++) {
+        const error = errors[Math.floor(i / wordsPerError)];
+        res.push(generateWordFromChainFromError(chain, error.text));
+      }
     }
-    return res;
+    return shuffle(res);
   }
 
   if (errors.length === 0) {
@@ -160,8 +169,8 @@ export function createExercise(prevErrors = []) {
   const getErrorContext = (error) => {
     const word = exerciseWords[error.word];
     const letter = word[error.start];
-    const before = error.start > 0 ? word[error.start - 1] : "";
-    const after = error.start + 1 < word.length ? word[error.start + 1] : "";
+    const before = error.start > 0 ? word[error.start - 1] : " ";
+    const after = error.start + 1 < word.length ? word[error.start + 1] : " ";
     return {
       text: letter,
       context: before + letter + after,
@@ -171,11 +180,14 @@ export function createExercise(prevErrors = []) {
   const getAnalyzedErrors = () => {
     const res = [];
 
-    errors.forEach((error) => {
-      res.push({
-        text: getErrorContext(error).context,
-      });
-    });
+    for (const error of errors) {
+      const context = getErrorContext(error).context;
+      if (context.length >= 2) {
+        res.push({
+          text: getErrorContext(error).context.slice(0, 2),
+        });
+      }
+    }
 
     return res;
   };

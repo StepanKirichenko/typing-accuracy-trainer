@@ -114,5 +114,5 @@ export function generateWordFromChainFromError(chain, errorBigram) {
   const errorPosition = bigramPositions[randNumber(bigramPositions.length)];
   const before = generateBackwardFromBigramAtPosition(chain, errorBigram, errorPosition);
   const after = generateForwardFromBigramAtPosition(chain, errorBigram, errorPosition);
-  return `${before}${errorBigram}${after}`;
+  return `${before}${errorBigram}${after}`.trim();
 }
