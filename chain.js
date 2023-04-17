@@ -1,6 +1,4 @@
-function randNumber(n) {
-  return Math.floor(Math.random() * n);
-}
+import { randNumber } from "./rand-utils";
 
 export function parseChain(chainJson) {
   const forwardChainString = chainJson.forwardChain;
