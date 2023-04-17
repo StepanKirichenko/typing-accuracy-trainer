@@ -5,6 +5,11 @@ import { shuffle } from "./rand-utils";
 
 let chain = {};
 let exercise = {};
+let errors = [];
+
+let wordIndex = 0;
+let letterIndex = 0;
+
 const exerciseHolder = document.querySelector("#exercise");
 const inputElement = document.querySelector("#exercise-input");
 const appElement = document.querySelector("#app");
@@ -98,109 +103,109 @@ function generateExercise(errors, length, mode = "randomized") {
   return shuffle(res);
 }
 
+const isExerciseFinished = () => wordIndex === exercise.words.length;
+
+const isWordFinished = () => {
+  const currentWordLength = exercise.words[wordIndex].word.length;
+  return wordIndex === exercise.words.length - 1
+    ? letterIndex === currentWordLength
+    : letterIndex > currentWordLength;
+}
+
+const registerError = (wordIndex, letterIndex) => {
+  const word = exercise.words[wordIndex].word;
+  if (letterIndex >= word.length) {
+    return;
+  }
+  const text = word[letterIndex];
+  const lastError = errors.length === 0 ? null : errors[errors.length - 1];
+  if (
+    lastError &&
+    lastError.word === wordIndex &&
+    lastError.end === letterIndex - 1
+  ) {
+    lastError.text = lastError.text + text;
+    lastError.end = letterIndex;
+    return;
+  }
+
+  errors.push({
+    text,
+    word: wordIndex,
+    start: letterIndex,
+    end: letterIndex,
+  });
+};
+
+const getErrorContext = (error) => {
+  const word = exercise.words[error.word].word;
+  const letter = word.charAt(error.start);
+  const before = error.start > 0 ? word.charAt(error.start - 1) : " ";
+  const after = error.start + 1 < word.length ? word.charAt(error.start + 1) : " ";
+  return {
+    text: letter,
+    context: before + letter + after,
+  };
+};
+
+function getAnalyzedErrors() {
+  const res = [];
+  for (const error of errors) {
+    const context = getErrorContext(error).context;
+    if (context.length >= 2) {
+      res.push({
+        text: context.slice(0, 2),
+      });
+    }
+  }
+  return res;
+};
+
+function handleInput(e) {
+  const currentLetter = exercise.words[wordIndex].letters[letterIndex];
+  const currentLetterElement = currentLetter.letterElement;
+  currentLetterElement.classList.remove("letter--current");
+
+  const inputLetter = e.target.value;
+  e.target.value = "";
+
+  if (currentLetter.letter === inputLetter) {
+    currentLetterElement.classList.add("letter--correct");
+  } else {
+    registerError(wordIndex, letterIndex);
+    currentLetterElement.classList.add("letter--incorrect");
+  }
+
+  letterIndex++;
+  if (isWordFinished()) {
+    wordIndex++;
+    letterIndex = 0;
+  }
+
+  if (isExerciseFinished()) {
+    inputElement.removeEventListener("input", handleInput);
+    createExercise(getAnalyzedErrors());
+    return;
+  }
+
+  exercise.words[wordIndex].letters[letterIndex].letterElement.classList.add("letter--current");
+}
+
 export function createExercise(prevErrors = []) {
   exercise = {
     words: [],
   };
   const exerciseWords = generateExercise(prevErrors, 20);
   const exerciseElement = createExerciseElement(exerciseWords);
-  let errors = [];
+  errors = [];
 
   exerciseHolder.replaceChildren(exerciseElement);
 
-  let wordIndex = 0;
-  let letterIndex = 0;
+  wordIndex = 0;
+  letterIndex = 0;
 
-  const isExerciseFinished = () => wordIndex === exerciseWords.length;
-  const isWordFinished = () => {
-    const currentWordLength = exercise.words[wordIndex].word.length;
-    return wordIndex === exercise.words.length - 1
-      ? letterIndex === currentWordLength
-      : letterIndex > currentWordLength;
-  }
 
-  const registerError = (wordIndex, letterIndex) => {
-    const word = exerciseWords[wordIndex];
-    if (letterIndex >= word.length) {
-      return;
-    }
 
-    const text = word[letterIndex];
-
-    const lastError = errors.length === 0 ? null : errors[errors.length - 1];
-    if (
-      lastError &&
-      lastError.word === wordIndex &&
-      lastError.end === letterIndex - 1
-    ) {
-      lastError.text = lastError.text + text;
-      lastError.end = letterIndex;
-      return;
-    }
-
-    errors.push({
-      text,
-      word: wordIndex,
-      start: letterIndex,
-      end: letterIndex,
-    });
-  };
-
-  const getErrorContext = (error) => {
-    const word = exerciseWords[error.word];
-    const letter = word[error.start];
-    const before = error.start > 0 ? word[error.start - 1] : " ";
-    const after = error.start + 1 < word.length ? word[error.start + 1] : " ";
-    return {
-      text: letter,
-      context: before + letter + after,
-    };
-  };
-
-  const getAnalyzedErrors = () => {
-    const res = [];
-
-    for (const error of errors) {
-      const context = getErrorContext(error).context;
-      if (context.length >= 2) {
-        res.push({
-          text: getErrorContext(error).context.slice(0, 2),
-        });
-      }
-    }
-
-    return res;
-  };
-
-  function handleInput(e) {
-    const currentLetter = exercise.words[wordIndex].letters[letterIndex];
-    const currentLetterElement = currentLetter.letterElement;
-    currentLetterElement.classList.remove("letter--current");
-
-    const inputLetter = e.target.value;
-    e.target.value = "";
-
-    if (currentLetter.letter  === inputLetter) {
-      currentLetterElement.classList.add("letter--correct");
-    } else {
-      registerError(wordIndex, letterIndex);
-      currentLetterElement.classList.add("letter--incorrect");
-    }
-
-    letterIndex++;
-    if (isWordFinished()) {
-      wordIndex++;
-      letterIndex = 0;
-    }
-
-    if (isExerciseFinished()) {
-      inputElement.removeEventListener("input", handleInput);
-      createExercise(getAnalyzedErrors());
-      return;
-    }
-
-    exercise.words[wordIndex].letters[letterIndex].letterElement.classList.add("letter--current");
-  }
 
   inputElement.addEventListener("input", handleInput);
   inputElement.focus();
