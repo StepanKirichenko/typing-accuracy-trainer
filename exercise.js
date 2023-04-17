@@ -14,31 +14,20 @@ export function setChain(newChain) {
   chain = newChain;
 }
 
-function createLetterElement(letter, index) {
-  return newElement("span", "letter", letter, `l${index}`);
-}
-
-function createEndOfWordElement(index) {
-  const element = newElement("span", "letter", "", `l${index}`);
-  element.innerHTML = "&nbsp;";
-  return element;
-}
-
-function createWordElement(word, index, isLastWord = false) {
-  const wordElement = newElement("p", "word", "", `w${index}`);
+function createWordElement(word, isLastWord = false) {
+  const wordElement = newElement("p", "word");
   const letters = [];
-  let i = 0;
   for (const letter of word) {
-    const letterElement = createLetterElement(letter, i);
+    const letterElement = newElement("span", "letter", letter);
     letters.push({
       letter,
       letterElement,
     });
     wordElement.appendChild(letterElement);
-    i++;
   }
   if (!isLastWord) {
-    const endElement = createEndOfWordElement(word.length);
+    const endElement = newElement("span", "letter", " ");
+    endElement.innerHTML = "&nbsp;";
     letters.push({
       letter: " ",
       letterElement: endElement,
@@ -57,7 +46,7 @@ function createExerciseElement(words) {
   const exerciseElement = newElement("div", "exercise");
   words.forEach((word, wordIndex) => {
     const isLastWord = wordIndex === words.length - 1;
-    const wordElement = createWordElement(word, wordIndex, isLastWord);
+    const wordElement = createWordElement(word, isLastWord);
     exerciseElement.appendChild(wordElement);
   });
   return exerciseElement;
