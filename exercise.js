@@ -1,3 +1,4 @@
+import { newElement } from "./dom-utils";
 import { words } from "/words.js";
 import { generateWordFromChain, generateWordFromChainFromError } from "./chain";
 import { shuffle } from "./rand-utils";
@@ -13,25 +14,17 @@ export function setChain(newChain) {
 }
 
 function createLetterElement(letter, index) {
-  const letterElement = document.createElement("span");
-  letterElement.id = `l${index}`;
-  letterElement.innerText = letter;
-  letterElement.classList.add("letter");
-  return letterElement;
+  return newElement("span", "letter", letter, `l${index}`);
 }
 
 function createEndOfWordElement(index) {
-  const element = document.createElement("span");
-  element.id = `l${index}`;
+  const element = newElement("span", "letter", "", `l${index}`);
   element.innerHTML = "&nbsp;";
-  element.classList.add("letter");
   return element;
 }
 
 function createWordElement(word, index, isLastWord = false) {
-  const wordElement = document.createElement("p");
-  wordElement.classList.add("word");
-  wordElement.id = `w${index}`;
+  const wordElement = newElement("p", "word", "", `w${index}`);
   [...word].forEach((letter, letterIndex) => {
     const letterElement = createLetterElement(letter, letterIndex);
     wordElement.appendChild(letterElement);
@@ -43,8 +36,7 @@ function createWordElement(word, index, isLastWord = false) {
 }
 
 function createExerciseElement(words) {
-  const exerciseElement = document.createElement("div");
-  exerciseElement.classList.add("exercise");
+  const exerciseElement = newElement("div", "exercise");
   words.forEach((word, wordIndex) => {
     const isLastWord = wordIndex === words.length - 1;
     const wordElement = createWordElement(word, wordIndex, isLastWord);
