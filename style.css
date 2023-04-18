@@ -67,7 +67,7 @@ body {
   left: -1.5ch;
   top: -0.1ch;
   bottom: 0;
-  transition: left 0.1s;
+  /* transition: left 0.1s; */
 }
 
 .letter--correct {
@@ -83,6 +83,7 @@ body {
   from {
     opacity: 1;
   }
+
   to {
     opacity: 0;
   }

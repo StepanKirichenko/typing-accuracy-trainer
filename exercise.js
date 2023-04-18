@@ -9,6 +9,7 @@ let errors = [];
 
 let wordIndex = 0;
 let letterIndex = 0;
+let lastInputLength = 0;
 
 const exerciseHolder = document.querySelector("#exercise");
 const inputElement = document.querySelector("#exercise-input");
@@ -166,29 +167,52 @@ function handleInput(e) {
   const currentLetterElement = currentLetter.letterElement;
   currentLetterElement.classList.remove("letter--current");
 
-  const inputLetter = e.target.value;
-  e.target.value = "";
+  const newInputLength = e.target.value.length;
+  if (newInputLength < lastInputLength) {
+    const charsDeleted = lastInputLength - newInputLength;
+    for (let i = 0; i < charsDeleted; i++) {
+      letterIndex -= 1;
+      if (letterIndex < 0) {
+        wordIndex -= 1;
+        if (wordIndex >= 0) {
+          letterIndex = exercise.words[wordIndex].word.length;
+        } else {
+          wordIndex = 0;
+          letterIndex = 0;
+        }
+      }
+      const letterElement = exercise.words[wordIndex].letters[letterIndex].letterElement;
+      letterElement.classList.remove("letter--correct");
+      letterElement.classList.remove("letter--incorrect");
+    }
+    exercise.words[wordIndex].letters[letterIndex].letterElement.classList.add("letter--current");
+  }
+  if (newInputLength == lastInputLength + 1) {
+    const inputLetter = e.target.value.at(-1);
 
-  if (currentLetter.letter === inputLetter) {
-    currentLetterElement.classList.add("letter--correct");
-  } else {
-    registerError(wordIndex, letterIndex);
-    currentLetterElement.classList.add("letter--incorrect");
+    if (currentLetter.letter === inputLetter) {
+      currentLetterElement.classList.add("letter--correct");
+    } else {
+      registerError(wordIndex, letterIndex);
+      currentLetterElement.classList.add("letter--incorrect");
+    }
+
+    letterIndex++;
+    if (isWordFinished()) {
+      wordIndex++;
+      letterIndex = 0;
+    }
+
+    if (isExerciseFinished()) {
+      inputElement.removeEventListener("input", handleInput);
+      createExercise(getAnalyzedErrors());
+      return;
+    }
+
+    exercise.words[wordIndex].letters[letterIndex].letterElement.classList.add("letter--current");
   }
 
-  letterIndex++;
-  if (isWordFinished()) {
-    wordIndex++;
-    letterIndex = 0;
-  }
-
-  if (isExerciseFinished()) {
-    inputElement.removeEventListener("input", handleInput);
-    createExercise(getAnalyzedErrors());
-    return;
-  }
-
-  exercise.words[wordIndex].letters[letterIndex].letterElement.classList.add("letter--current");
+  lastInputLength = newInputLength;
 }
 
 export function createExercise(prevErrors = []) {
@@ -203,8 +227,10 @@ export function createExercise(prevErrors = []) {
 
   wordIndex = 0;
   letterIndex = 0;
+  lastInputLength = 0;
 
   inputElement.addEventListener("input", handleInput);
   inputElement.focus();
+  inputElement.value = "";
   exercise.words[wordIndex].letters[letterIndex].letterElement.classList.add("letter--current");
 }
