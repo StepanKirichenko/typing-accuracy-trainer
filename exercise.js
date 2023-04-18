@@ -204,9 +204,6 @@ export function createExercise(prevErrors = []) {
   wordIndex = 0;
   letterIndex = 0;
 
-
-
-
   inputElement.addEventListener("input", handleInput);
   inputElement.focus();
   exercise.words[wordIndex].letters[letterIndex].letterElement.classList.add("letter--current");

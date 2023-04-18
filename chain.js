@@ -42,9 +42,18 @@ function parseBigramPositions(bigramPositionsString) {
   const bigrams = bigramPositionsString.split(';');
   const bigramPositions = {};
   for (let bigramString of bigrams) {
-    const [bigram, positionsString] = bigramString.split(':');
-    const positions = positionsString.split(' ').map((p) => Number(p));
-    bigramPositions[bigram] = positions;
+    const [bigram, positionsString, totalCount] = bigramString.split(':');
+    const positions = positionsString.split(',').map((p) => {
+      const [pos, count] = p.split(' ');
+      return {
+        position: Number(pos),
+        count: Number(count),
+      }
+    });
+    bigramPositions[bigram] = {
+      positions,
+      count: Number(totalCount),
+    };
   }
   return bigramPositions;
 }
@@ -108,8 +117,18 @@ export function generateWordFromChain(chain) {
 }
 
 export function generateWordFromChainFromError(chain, errorBigram) {
-  const bigramPositions = chain.bigramPositions[errorBigram];
-  const errorPosition = bigramPositions[randNumber(bigramPositions.length)];
+  const bigramPositionsData = chain.bigramPositions[errorBigram];
+  const bigramPositions = bigramPositionsData.positions;
+  let errorPosition = 0;
+  const rand = randNumber(bigramPositionsData.count);
+  let acc = 0;
+  for (const positionData of bigramPositions) {
+    acc += positionData.count;
+    if (acc >= rand) {
+      errorPosition = positionData.position;
+      break;
+    }
+  }
   const before = generateBackwardFromBigramAtPosition(chain, errorBigram, errorPosition);
   const after = generateForwardFromBigramAtPosition(chain, errorBigram, errorPosition);
   return `${before}${errorBigram}${after}`.trim();
